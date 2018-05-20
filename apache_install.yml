@@ -1,0 +1,21 @@
+---
+- hosts: web_server
+
+  tasks:
+    - name: Install Apache
+      yum: name=httpd update_cache=yes
+
+    - name: Copy Data Files
+      copy: src=index.html dest=/var/www/html/
+
+    - name: Stop Apache Service
+      service: name=httpd state=stopped
+
+    - name: Copy template file
+      template: dest=/var/www/html/current.html src=current.html.j2
+      notify:
+        - Start apache
+
+  handlers:
+    - name: Start apache
+      service: name=httpd state=restarted

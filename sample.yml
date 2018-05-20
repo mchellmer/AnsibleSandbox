@@ -1,0 +1,15 @@
+---
+- hosts: demo_hosts
+  vars:
+      package1 : "nginx"
+      package2 :  "wget"
+  tasks:
+    - name: Installing package nginx
+      yum: pkg=nginx state=installed update_cache=yes state=latest
+      become: true
+    - name: Installing wget
+      yum: name={{ package2 }} state=installed update_cache=yes state=latest
+      become: true
+    - name: Copying test1 file
+      copy: dest=/tmp/test11  src=/tmp/test11
+
