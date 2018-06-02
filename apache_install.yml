@@ -2,11 +2,16 @@
 - hosts: web_server
 
   tasks:
-    - name: Install Apache
-      yum: name=httpd update_cache=yes
+    - name: Install Apache, ngimx, nmap
+      yum: name={{ item }} update_cache=yes
+      with_items:
+        - httpd
+        - nginx
+        - nmap
 
     - name: Copy Data Files
       copy: src=index.html dest=/var/www/html/
+      register: copy_status
 
     - name: Stop Apache Service
       service: name=httpd state=stopped
@@ -15,6 +20,20 @@
       template: dest=/var/www/html/current.html src=current.html.j2
       notify:
         - Start apache
+
+    - name: Testing condition
+      shell: uptime
+      when: ansible_hostname == "node01"
+
+    - name: Testing until
+      shell: service httpd status
+      register: result
+      until: result != "httpd is stopped"
+      retries: 5
+      delay: 5
+
+    - name: print the variable
+      debug: var=result
 
   handlers:
     - name: Start apache
